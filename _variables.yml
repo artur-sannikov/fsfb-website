@@ -1,0 +1,7 @@
+# Repository that receives the Bioconductor map issue-form submissions.
+#
+# When rendering locally in a fork, change this to your fork, for example:
+#   bioc_repo_url: "https://github.com/your-name/website"
+# The Website preview workflow overrides this automatically on forks.
+# Keep the upstream URL in pull requests to the Finnish Society repository.
+bioc_repo_url: "https://github.com/Finnish-Society-for-Bioinformatics/website"

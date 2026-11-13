@@ -63,30 +63,43 @@ default branch before the manual trigger is available.
 A later deployment of `main` force-pushes `gh-pages` and removes the preview.
 Re-run the preview workflow when you need it again.
 
-# Testing the Bioconductor map issue forms
+# Testing the Bioconductor map issue forms in a fork
 
-GitHub reads issue templates and runs `issues` workflows from the default branch
-(`main`), not from the branch in a preview URL. While the templates exist only
-on `bioconductor-communities`, `?template=bioc-map-add.yml` renders an empty
-issue form.
+GitHub reads issue templates and runs `issues` workflows from the repository's
+default branch. In the upstream repository the templates are not on `main`, so
+the preview page's Add me link opens an empty form.
 
-To test the whole flow:
+To test the whole flow without changing the upstream `main` branch:
 
-1. Merge the issue templates, `.github/workflows/bioc-map.yml`,
-   `.github/scripts/issue-report.sh`, `R/issues/`, and
-   `data/bioconductor_members.yaml` into `main`.
-2. Run **Actions → Labels** once, or push a change to
-   `.github/workflows/labels.yml`, so that the `bioc-map` labels exist.
-3. Open the Add me form and submit a test request.
-4. The validation workflow comments on the issue and adds
-   `bioc-map: valid` or `bioc-map: needs changes`.
-5. A maintainer adds the `approved` label.
-6. The apply workflow opens a pull request that updates the YAML data file.
-7. Merge that pull request; the map shows the new person after the site is
-   rebuilt.
+1. Fork the repository to your GitHub account.
+2. In the fork's **Settings → Features**, enable **Issues**.
+3. In **Settings → Actions → General**, allow actions and set **Workflow
+   permissions** to **Read and write permissions**. Enable **Allow GitHub
+   Actions to create and approve pull requests**.
+4. Push `bioconductor-communities` to the fork. The **Website preview** workflow
+   publishes the site to the fork's `gh-pages` branch, removes the inherited
+   `bioinf.fi` CNAME, and points the Add me, Update, and Remove buttons at the
+   fork's issues automatically.
+5. In the fork's **Settings → General → Default branch**, set
+   `bioconductor-communities` as the default branch.
+6. In the fork's **Settings → Pages**, publish from the `gh-pages` branch and
+   the `/ (root)` folder. If Pages already has the `bioinf.fi` custom domain,
+   remove it there.
+7. Run **Actions → Labels → Run workflow** once so the `bioc-map` labels exist.
+8. Open the fork's preview page, submit the Add me form, add `approved` as a
+   maintainer, and merge the pull request opened by the bot.
 
-For an isolated test without changing `main`, use a fork or test repository
-whose default branch contains these files.
+When rendering locally in a fork, set `bioc_repo_url` in `_variables.yml` to
+`https://github.com/your-name/website` manually.
+
+A fork named `website` publishes to:
+
+```text
+https://your-name.github.io/website/preview/bioconductor-communities/
+```
+
+After the bot's data pull request is merged, the next preview build shows the
+new person on the map.
 
 # How to Add New Events?
 

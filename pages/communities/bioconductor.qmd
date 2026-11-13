@@ -112,13 +112,13 @@ exact location. All information you provide is public.
 
 ::: {.d-flex .flex-wrap .gap-2}
 
-[Add me](https://github.com/Finnish-Society-for-Bioinformatics/website/issues/new?template=bioc-map-add.yml){.btn
+[Add me]({{< var bioc_repo_url >}}/issues/new?template=bioc-map-add.yml){.btn
 .btn-dark .rounded-pill target="_blank"}
 
-[Update my details](https://github.com/Finnish-Society-for-Bioinformatics/website/issues/new?template=bioc-map-modify.yml){.btn
+[Update my details]({{< var bioc_repo_url >}}/issues/new?template=bioc-map-modify.yml){.btn
 .btn-outline-dark .rounded-pill target="_blank"}
 
-[Remove me](https://github.com/Finnish-Society-for-Bioinformatics/website/issues/new?template=bioc-map-remove.yml){.btn
+[Remove me]({{< var bioc_repo_url >}}/issues/new?template=bioc-map-remove.yml){.btn
 .btn-outline-dark .rounded-pill target="_blank"}
 
 :::

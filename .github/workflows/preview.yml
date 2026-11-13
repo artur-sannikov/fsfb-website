@@ -8,6 +8,9 @@
 # The production publishing workflow force-pushes gh-pages, so a later main
 # deployment removes previews. Re-run this workflow when you need the preview
 # again.
+#
+# On forks, the inherited bioinf.fi CNAME is removed, issue-form links point at
+# the fork, and the summary uses the fork's github.io Pages URL.
 
 name: Website preview
 
@@ -33,12 +36,20 @@ jobs:
     env:
       PREVIEW_BRANCH: ${{ github.ref_name }}
       CUSTOM_PREVIEW_PATH: ${{ inputs.preview_path }}
+      IS_FORK: ${{ github.event.repository.fork }}
     steps:
       - name: Check out branch
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           lfs: true
+
+      - name: Point issue forms at this fork
+        if: github.event.repository.fork
+        run: |
+          cat > _variables.yml <<EOF
+          bioc_repo_url: "https://github.com/${GITHUB_REPOSITORY}"
+          EOF
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -87,10 +98,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin gh-pages
           tmp="$(mktemp -d)"
           worktree="$tmp/gh-pages"
-          git worktree add --detach "$worktree" origin/gh-pages
+          if git fetch origin gh-pages; then
+            git worktree add --detach "$worktree" origin/gh-pages
+          else
+            echo "gh-pages does not exist yet; creating an orphan branch."
+            git worktree add --detach "$worktree" HEAD
+            git -C "$worktree" checkout --orphan gh-pages
+            git -C "$worktree" rm -rf . >/dev/null
+            touch "$worktree/.nojekyll"
+          fi
+
+          # A fork must not inherit the upstream custom domain
+          if [ "${IS_FORK:-false}" = "true" ] && [ -f "$worktree/CNAME" ]; then
+            rm -f "$worktree/CNAME"
+          fi
 
           rm -rf "$worktree/$preview_path"
           mkdir -p "$worktree/$preview_path"
@@ -98,6 +121,12 @@ jobs:
 
           cd "$worktree"
           git add -A "$preview_path"
+          if [ -f .nojekyll ]; then
+            git add -A .nojekyll
+          fi
+          if [ "${IS_FORK:-false}" = "true" ]; then
+            git add -A CNAME 2>/dev/null || true
+          fi
 
           if git diff --cached --quiet; then
             echo "No preview changes to deploy."
@@ -106,5 +135,15 @@ jobs:
             git push origin HEAD:gh-pages
           fi
 
-          site_url="https://$(cat CNAME)"
+          if [ -f CNAME ]; then
+            site_url="https://$(cat CNAME)"
+          else
+            owner="${GITHUB_REPOSITORY%%/*}"
+            repo="${GITHUB_REPOSITORY#*/}"
+            if [ "$repo" = "${owner}.github.io" ]; then
+              site_url="https://${owner}.github.io"
+            else
+              site_url="https://${owner}.github.io/${repo}"
+            fi
+          fi
           echo "Preview: $site_url/$preview_path/" >> "$GITHUB_STEP_SUMMARY"
