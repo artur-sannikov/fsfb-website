@@ -26,8 +26,9 @@ body:
     id: role
     attributes:
       label: Role
-      description: Developers maintain or contribute to a Bioconductor package. Leave empty to keep the current value.
+      description: Developers maintain or contribute to a Bioconductor package.
       options:
+        - Leave unchanged
         - Bioconductor user
         - Bioconductor developer
     validations:

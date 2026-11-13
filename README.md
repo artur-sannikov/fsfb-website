@@ -63,6 +63,31 @@ default branch before the manual trigger is available.
 A later deployment of `main` force-pushes `gh-pages` and removes the preview.
 Re-run the preview workflow when you need it again.
 
+# Testing the Bioconductor map issue forms
+
+GitHub reads issue templates and runs `issues` workflows from the default branch
+(`main`), not from the branch in a preview URL. While the templates exist only
+on `bioconductor-communities`, `?template=bioc-map-add.yml` renders an empty
+issue form.
+
+To test the whole flow:
+
+1. Merge the issue templates, `.github/workflows/bioc-map.yml`,
+   `.github/scripts/issue-report.sh`, `R/issues/`, and
+   `data/bioconductor_members.yaml` into `main`.
+2. Run **Actions → Labels** once, or push a change to
+   `.github/workflows/labels.yml`, so that the `bioc-map` labels exist.
+3. Open the Add me form and submit a test request.
+4. The validation workflow comments on the issue and adds
+   `bioc-map: valid` or `bioc-map: needs changes`.
+5. A maintainer adds the `approved` label.
+6. The apply workflow opens a pull request that updates the YAML data file.
+7. Merge that pull request; the map shows the new person after the site is
+   rebuilt.
+
+For an isolated test without changing `main`, use a fork or test repository
+whose default branch contains these files.
+
 # How to Add New Events?
 
 Adding/modifying events on the Events pages is a straightforward but a bit
